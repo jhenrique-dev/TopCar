@@ -114,9 +114,7 @@ var app = (function appController(){
         $('[data-js="field-color"]').get().value = '';
       }
     }
-
-
-
+    
   })();
 
   app.init();
