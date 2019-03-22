@@ -76,21 +76,31 @@ var app = (function appController(){
         $tbody.appendChild(app.createNewTr());
         app.clear();
       },
-
+      
+      
       createNewTr : function createNewTr(){
         var $fragment = document.createDocumentFragment();
-
+        
+        var $image = document.createElement('img');
         var $createTr = document.createElement('tr');
         var $tdImage = document.createElement('td');
         var $tdBrand = document.createElement('td');
         var $tdYear = document.createElement('td');
         var $tdBoard = document.createElement('td');
         var $tdColor = document.createElement('td');
-        var $image = document.createElement('img');
 
+        var $tdButtonRemove = document.createElement('td');
+        var $buttonRemove = document.createElement('button');
+        $tdButtonRemove.appendChild($buttonRemove);
+        $buttonRemove.textContent = 'Remover';
+
+        $buttonRemove.addEventListener('click' , function(){
+          $createTr.parentNode.removeChild($createTr);
+        } , false );
+              
         $image.src = $('[data-js="field-image-car"]').get().value;
         $tdImage.appendChild($image);
-
+        
         $tdBrand.textContent = $('[data-js="field-brand"]').get().value;
         $tdYear.textContent = $('[data-js="field-year"]').get().value;
         $tdBoard.textContent = $('[data-js="field-board"]').get().value;
@@ -101,6 +111,7 @@ var app = (function appController(){
         $createTr.appendChild($tdYear);
         $createTr.appendChild($tdBoard);
         $createTr.appendChild($tdColor);
+        $createTr.appendChild($tdButtonRemove);
 
         return $fragment.appendChild($createTr);
 
@@ -114,7 +125,7 @@ var app = (function appController(){
         $('[data-js="field-color"]').get().value = '';
       }
     }
-    
+
   })();
 
   app.init();
