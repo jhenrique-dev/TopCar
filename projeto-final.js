@@ -99,6 +99,16 @@ var app = (function appController(){
         });
       },
 
+      deleteDataStore : function deleteDataStore(car){
+        var ajax = new XMLHttpRequest();
+        ajax.open('DELETE' , 'http://localhost:3000/car' , true);
+        ajax.setRequestHeader('Content-Type' , 'application/x-www-form-urlencoded');
+        ajax.send('plate='+car.plate);
+        ajax.addEventListener('readystatechange' , function(){
+          console.log('Carro removido com sucesso');
+        }, false);
+      },
+      
       getInfoCompany : function getInfoCompany(){
         if(!app.requestOk)
           return;
@@ -140,7 +150,8 @@ var app = (function appController(){
         $buttonRemove.textContent = 'Remover';
 
         $buttonRemove.addEventListener('click' , function(){
-          $createTr.parentNode.removeChild($createTr);
+          app.deleteDataStore(car);
+          $createTr.parentNode.removeChild($createTr);        
         } , false );
 
         $image.src = car.image;
