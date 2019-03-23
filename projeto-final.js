@@ -42,18 +42,61 @@ var app = (function appController(){
 
       init : function init(){
         this.openAjaxConnection();
+        this.getDataStore();
         this.events();
       },
 
+      setCar : function setCar(){
+        var cars = {
+         image : $('[data-js="field-image-car"]').get().value,
+         brandModel : $('[data-js="field-brand"]').get().value,
+         year : $('[data-js="field-year"]').get().value,
+         plate : $('[data-js="field-board"]').get().value,
+         color :  $('[data-js="field-color"]').get().value
+        }
+        return cars;
+      },
+
       openAjaxConnection : function openAjaxConnection() {
-        var ajax = new XMLHttpRequest;
+        var ajax = new XMLHttpRequest();
         ajax.open('GET' , '/company.json', true);
         ajax.send();
         ajax.addEventListener('readystatechange', this.getInfoCompany, false);
       },
 
       requestOk : function requestOk(){
-        return ajax.readyState === 4 && ajax.status === 200;
+        return this.readyState === 4 && this.status === 200;
+      },
+
+      getDataStore : function getDataStore(){
+        var ajax = new XMLHttpRequest();
+        ajax.open('GET' , 'http://localhost:3000/car' , true);
+        ajax.send();
+        ajax.addEventListener('readystatechange' , app.putTableDataStore , false);
+
+      },
+
+      postDataStore : function postDataStore(){
+        var car = app.setCar();
+        var ajax = new XMLHttpRequest();
+        ajax.open('POST' , 'http://localhost:3000/car' , true);
+        ajax.setRequestHeader('Content-Type' , 'application/x-www-form-urlencoded');
+        ajax.send('image='+car.image+'&brandModel='+car.brandModel+'&year='+car.year+'&plate='+car.plate+'&color='+car.color);
+        ajax.addEventListener('readystatechange' , function(){
+          console.log('Carro cadastrado com sucesso!');
+        })
+      },
+
+      putTableDataStore : function putTableDataStore(){
+        if(this.readyState === 4 && this.status === 200)
+          return;
+        var cars = JSON.parse(this.responseText);
+        var $tbody = $('[data-js="tbody"]').get();
+        
+        cars.forEach(function(car){
+          var $fragment = app.createNewTr(car);
+          $tbody.appendChild($fragment);
+        });
       },
 
       getInfoCompany : function getInfoCompany(){
@@ -72,12 +115,15 @@ var app = (function appController(){
 
       setInfoTable : function setInfoTable(e){
         e.preventDefault();
+        var car = app.setCar();
         var $tbody = $('[data-js="tbody"]').get();
-        $tbody.appendChild(app.createNewTr());
+        $tbody.appendChild(app.createNewTr(car));
+        app.postDataStore();
         app.clear();
       },
 
-      createNewTr : function createNewTr(){
+      createNewTr : function createNewTr(car){
+
         var $fragment = document.createDocumentFragment();
 
         var $createTr = document.createElement('tr');
@@ -88,19 +134,29 @@ var app = (function appController(){
         var $tdColor = document.createElement('td');
         var $image = document.createElement('img');
 
-        $image.src = $('[data-js="field-image-car"]').get().value;
+        var $tdButtonRemove = document.createElement('td');
+        var $buttonRemove = document.createElement('button');
+        $tdButtonRemove.appendChild($buttonRemove);
+        $buttonRemove.textContent = 'Remover';
+
+        $buttonRemove.addEventListener('click' , function(){
+          $createTr.parentNode.removeChild($createTr);
+        } , false );
+
+        $image.src = car.image;
         $tdImage.appendChild($image);
 
-        $tdBrand.textContent = $('[data-js="field-brand"]').get().value;
-        $tdYear.textContent = $('[data-js="field-year"]').get().value;
-        $tdBoard.textContent = $('[data-js="field-board"]').get().value;
-        $tdColor.textContent = $('[data-js="field-color"]').get().value;
+        $tdBrand.textContent = car.brandModel;
+        $tdYear.textContent = car.year;
+        $tdBoard.textContent = car.plate;
+        $tdColor.textContent = car.color;
 
         $createTr.appendChild($tdImage);
         $createTr.appendChild($tdBrand);
         $createTr.appendChild($tdYear);
         $createTr.appendChild($tdBoard);
         $createTr.appendChild($tdColor);
+        $createTr.appendChild($tdButtonRemove);
 
         return $fragment.appendChild($createTr);
 
